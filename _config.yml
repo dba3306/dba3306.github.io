@@ -4,10 +4,10 @@
 # ---------------------------------------------------------------
 
 # Site
-title: NexT
-subtitle:
+title: Focus On DB Tech
+subtitle: 取长补短 分享经验
 description:
-author: John Doe
+author: Nick
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: zh-Hans
 date_format: '%Y-%m-%d'
@@ -373,7 +373,7 @@ han: false
 #swiftype_key:
 
 # Baidu Analytics ID
-#baidu_analytics:
+baidu_analytics: 7a794dd180e2488d186ff01f920bfa59
 
 # Duoshuo ShortName
 #duoshuo_shortname:
