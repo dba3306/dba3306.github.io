@@ -1,13 +1,10 @@
 ---
-title: 我的第一篇blog
-description: 万事开头难，坚持是关键
+title: 用innobackupex实现加密备份
+description:  这是应一个朋友的需求帮他写的加密备份脚本
 categories:
- - 测试
- - db
-tags: t1,t2,t3 t4
+ - mysql
+tags: pt-tools
 ---
-摘要阿萨德阿萨德阿萨德实打实稍等稍等胜多负少发斯蒂芬是防守打法所发生的事是否斯蒂芬第三方是否斯蒂芬是否
-<!-- more -->
 
 ### 安装innobackupex
 
@@ -27,8 +24,6 @@ GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'xbackupopr'@'%' IDENTIF
 ```
 openssl enc -aes-256-cbc -pass pass:Password -P -md sha1 | grep iv | cut -d'=' -f2 
 ```
-
-
 
 ### 脚本
 
