@@ -286,7 +286,7 @@ The instance 'localhost:24632' was successfully added to the cluster.
     "groupInformationSourceMember": "node-1:24630"
 ```
 
-#### 安装MySQL router
+### 安装MySQL router
 
 待补充
 
