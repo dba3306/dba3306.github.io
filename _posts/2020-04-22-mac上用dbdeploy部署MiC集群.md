@@ -1,3 +1,11 @@
+---
+title: 快速搭建innodb cluster 集群
+description: 本文介绍如何在mac上用dbdeploy工具快速创建3个节点并配置集群 
+categories:
+ - 运维
+ - MySQL
+tags: innodb_cluster
+---
 ### 用dbdeployer 部署3个单节点
 `dbdeployer deploy multiple 5.7 -n 3`
 
