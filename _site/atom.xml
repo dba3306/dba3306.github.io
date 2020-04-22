@@ -1,4 +1,404 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="http://localhost:4000/atom.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-04-20T19:34:59+08:00</updated><id>http://localhost:4000/atom.xml</id><title type="html">Focus On DB Tech</title><author><name>Nick</name></author><entry><title type="html">mongodb复制集环境搭建</title><link href="http://localhost:4000/mongodb/2020/04/20/mongo_replset_building/" rel="alternate" type="text/html" title="mongodb复制集环境搭建" /><published>2020-04-20T00:00:00+08:00</published><updated>2020-04-20T00:00:00+08:00</updated><id>http://localhost:4000/mongodb/2020/04/20/mongo_replset_building</id><content type="html" xml:base="http://localhost:4000/mongodb/2020/04/20/mongo_replset_building/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="http://localhost:4000/atom.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-04-22T23:37:09+08:00</updated><id>http://localhost:4000/atom.xml</id><title type="html">Focus On DB Tech</title><author><name>Nick</name></author><entry><title type="html">Mac上用dbdeploy部署mic集群</title><link href="http://localhost:4000/2020/04/22/mac%E4%B8%8A%E7%94%A8dbdeploy%E9%83%A8%E7%BD%B2MiC%E9%9B%86%E7%BE%A4/" rel="alternate" type="text/html" title="Mac上用dbdeploy部署mic集群" /><published>2020-04-22T00:00:00+08:00</published><updated>2020-04-22T00:00:00+08:00</updated><id>http://localhost:4000/2020/04/22/mac%E4%B8%8A%E7%94%A8dbdeploy%E9%83%A8%E7%BD%B2MiC%E9%9B%86%E7%BE%A4</id><content type="html" xml:base="http://localhost:4000/2020/04/22/mac%E4%B8%8A%E7%94%A8dbdeploy%E9%83%A8%E7%BD%B2MiC%E9%9B%86%E7%BE%A4/">&lt;h3 id=&quot;用dbdeployer-部署3个单节点&quot;&gt;用dbdeployer 部署3个单节点&lt;/h3&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;dbdeployer deploy multiple 5.7 -n 3&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;查看节点状态&quot;&gt;查看节点状态&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dbdeployer sandboxes --full-info
+.------------------.----------.---------.-----------.----------------------.--------.-------.--------.
+|       name       |   type   | version |   host    |         port         | flavor | nodes | locked |
++------------------+----------+---------+-----------+----------------------+--------+-------+--------+
+| multi_msb_5_7_29 | multiple | 5.7.29  | 127.0.0.1 | [24630 24631 24632 ] | mysql  |     3 |        |
+'------------------'----------'---------'-----------'----------------------'--------'-------'--------'
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dbdeployer global status
+&lt;span class=&quot;c&quot;&gt;# Running &quot;status_all&quot; on multi_msb_5_7_29&lt;/span&gt;
+MULTIPLE  /Users/qianyin/sandboxes/multi_msb_5_7_29
+node1 : node1 on  -  port       24630 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24630&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node2 : node2 on  -  port       24631 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24631&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node3 : node3 on  -  port       24632 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24632&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;下载mysql-shell&quot;&gt;下载MySQL-Shell&lt;/h3&gt;
+
+&lt;p&gt;wget https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell-8.0.19-macos10.15-x86-64bit.tar.gz&lt;/p&gt;
+
+&lt;p&gt;解压后进入mysql shell 目录
+bin目录下就3个文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt;@ 1 qianyin  staff    633256 12 17 09:42 mysql-secret-store-keychain&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt;@ 1 qianyin  staff   7957420 12 17 09:42 mysql-secret-store-login-path&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt;@ 1 qianyin  staff  31067132 12 17 09:42 mysqlsh&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;我们运行mysqlsh
+可以先打\help 看下帮助提示
+可以看到支持的模块如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; - dba    Used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;InnoDB cluster administration.
+ - mysql  Support &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;connecting to MySQL servers using the classic MySQL
+          protocol.
+ - mysqlx Used to work with X Protocol sessions using the MySQL X DevAPI.
+ - os     Gives access to functions which allow to interact with the operating
+          system.
+ - shell  Gives access to general purpose functions and properties.
+ - sys    Gives access to system specific parameters.
+ - util   Global object that groups miscellaneous tools like upgrade checker
+          and JSON import.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;部署集群我们需要用到dba功能，再查看dba的帮助信息&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\? dba&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;正式配置集群&quot;&gt;正式配置集群&lt;/h3&gt;
+
+&lt;h4 id=&quot;检查并配置3个数据库实例&quot;&gt;检查并配置3个数据库实例&lt;/h4&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql-js&amp;gt; &lt;span class=&quot;se&quot;&gt;\c&lt;/span&gt;onnect root@localhost:24630
+ MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dba.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+Configuring &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;MySQL instance listening at port 24630 &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;use &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;an InnoDB cluster...
+
+This instance reports its own address as node-1:24630
+
+ERROR: User &lt;span class=&quot;s1&quot;&gt;'root'&lt;/span&gt; can only connect from &lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; New account&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; with proper &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;address specification to allow remote connection from all instances must be created to manage the cluster.
+
+1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Create remotely usable account &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'root'&lt;/span&gt; with same grants and password
+2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Create a new admin account &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;InnoDB cluster with minimal required grants
+3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Ignore and &lt;span class=&quot;k&quot;&gt;continue
+&lt;/span&gt;4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Cancel
+
+Please &lt;span class=&quot;k&quot;&gt;select &lt;/span&gt;an option &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1]: 
+Please provide a &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;address filter &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;the account &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;e.g: 192.168.% or % etc&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; or leave empty and press Enter to cancel.
+Account Host: %
+
+NOTE: Some configuration options need to be fixed:
++----------------------------------+---------------+----------------+------------------------------------------------+
+| Variable                         | Current Value | Required Value | Note                                           |
++----------------------------------+---------------+----------------+------------------------------------------------+
+| binlog_checksum                  | CRC32         | NONE           | Update the server variable and the config file |
+| enforce_gtid_consistency         | OFF           | ON             | Update the config file and restart the server  |
+| gtid_mode                        | OFF           | ON             | Update the config file and restart the server  |
+| log_slave_updates                | OFF           | ON             | Update the config file and restart the server  |
+| master_info_repository           | FILE          | TABLE          | Update the config file and restart the server  |
+| relay_log_info_repository        | FILE          | TABLE          | Update the config file and restart the server  |
+| transaction_write_set_extraction | OFF           | XXHASH64       | Update the config file and restart the server  |
++----------------------------------+---------------+----------------+------------------------------------------------+
+
+Some variables need to be changed, but cannot be &lt;span class=&quot;k&quot;&gt;done &lt;/span&gt;dynamically on the server: an option file is required.
+
+Detecting the configuration file...
+Default file not found at the standard locations.
+Please specify the path to the MySQL configuration file: /Users/qianyin/sandboxes/multi_msb_5_7_29/node1/my.sandbox.cnf
+Do you want to perform the required configuration changes? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/n]: y
+
+Cluster admin user &lt;span class=&quot;s1&quot;&gt;'root'&lt;/span&gt;@&lt;span class=&quot;s1&quot;&gt;'%'&lt;/span&gt; created.
+Configuring instance...
+The instance &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt; was configured to be used &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;an InnoDB cluster.
+NOTE: MySQL server needs to be restarted &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;configuration changes to take effect.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;依次修改另外2个节点&lt;/p&gt;
+
+&lt;p&gt;查看my.cnf 会发现在文件末尾添加了如下配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;binlog_checksum = NONE
+enforce_gtid_consistency = ON
+gtid_mode = ON
+log_slave_updates = ON
+master_info_repository = TABLE
+relay_log_info_repository = TABLE
+transaction_write_set_extraction = XXHASH64
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;配置完后，检查下&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dba.checkInstanceConfiguration&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24631'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Validating &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;MySQL instance listening at port 24631 &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;use &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;an InnoDB cluster...
+
+This instance reports its own address as node-2:24631
+
+Checking whether existing tables comply with Group Replication requirements...
+No incompatible tables detected
+
+Checking instance configuration...
+Instance configuration is compatible with InnoDB cluster
+
+The instance &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt; is valid to be used &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;an InnoDB cluster.
+
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ok&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;3个节点都显示”status”: “ok” 即可。&lt;/p&gt;
+
+&lt;h4 id=&quot;创建集群&quot;&gt;创建集群&lt;/h4&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; var cluster &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; dba.createCluster&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'testCluster'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localAddress'&lt;/span&gt;:&lt;span class=&quot;s1&quot;&gt;'localhost:25630'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+A new InnoDB cluster will be created on instance &lt;span class=&quot;s1&quot;&gt;'localhost:24630'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+Disabling super_read_only mode on instance &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+Validating instance configuration at localhost:24630...
+
+This instance reports its own address as node-1:24630
+
+Instance configuration is suitable.
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt; cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+Creating InnoDB cluster &lt;span class=&quot;s1&quot;&gt;'testCluster'&lt;/span&gt; on &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt;...
+
+Adding Seed Instance...
+Cluster successfully created. Use Cluster.addInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; to add MySQL instances.
+At least 3 instances are needed &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;the cluster to be able to withstand up to
+one server failure.
+
+
+
+Adding Instances to an InnoDB Cluster
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;**注意：先配置/etc/hosts **&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;127.0.0.1 node-1
+127.0.0.1 node-2
+127.0.0.1 node-3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;否则报错：&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  127.0.0.1:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; cluster.addInstance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24631'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localAddress'&lt;/span&gt;:&lt;span class=&quot;s1&quot;&gt;'localhost:25631'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+Cluster.addInstance: Unknown MySQL server host &lt;span class=&quot;s1&quot;&gt;'node-1'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL Error 2005&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;添加集群节点&quot;&gt;添加集群节点&lt;/h4&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; cluster.addInstance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24631'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localAddress'&lt;/span&gt;:&lt;span class=&quot;s1&quot;&gt;'localhost:25631'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+
+NOTE: The target instance &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt; has not been pre-provisioned &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;GTID &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;is empty&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; The Shell is unable to decide whether incremental state recovery can correctly provision it.
+The safest and most convenient way to provision a new instance is through automatic clone provisioning, which will completely overwrite the state of &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt; with a physical snapshot from an existing cluster member. To use this method by default, &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;the &lt;span class=&quot;s1&quot;&gt;'recoveryMethod'&lt;/span&gt; option to &lt;span class=&quot;s1&quot;&gt;'clone'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+The incremental state recovery may be safely used &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;you are sure all updates ever executed &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;the cluster were &lt;span class=&quot;k&quot;&gt;done &lt;/span&gt;with GTIDs enabled, there are no purged transactions and the new instance contains the same GTID &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;as the cluster or a subset of it. To use this method by default, &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;the &lt;span class=&quot;s1&quot;&gt;'recoveryMethod'&lt;/span&gt; option to &lt;span class=&quot;s1&quot;&gt;'incremental'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+
+Please &lt;span class=&quot;k&quot;&gt;select &lt;/span&gt;a recovery method &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;I]ncremental recovery/[A]bort &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default Incremental recovery&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: 
+Validating instance configuration at localhost:24631...
+
+This instance reports its own address as node-2:24631
+
+Instance configuration is suitable.
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt; cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+A new instance will be added to the InnoDB cluster. Depending on the amount of
+data on the cluster this might take from a few seconds to several hours.
+
+Adding instance to the cluster...
+
+Monitoring recovery process of the new cluster member. Press ^C to stop monitoring and &lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;it &lt;span class=&quot;k&quot;&gt;continue in &lt;/span&gt;background.
+State recovery already finished &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt;
+
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt; cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+The instance &lt;span class=&quot;s1&quot;&gt;'localhost:24631'&lt;/span&gt; was successfully added to the cluster.
+
+
+     MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; cluster.addInstance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24632'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localAddress'&lt;/span&gt;:&lt;span class=&quot;s1&quot;&gt;'localhost:25632'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+
+NOTE: The target instance &lt;span class=&quot;s1&quot;&gt;'node-3:24632'&lt;/span&gt; has not been pre-provisioned &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;GTID &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;is empty&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; The Shell is unable to decide whether incremental state recovery can correctly provision it.
+The safest and most convenient way to provision a new instance is through automatic clone provisioning, which will completely overwrite the state of &lt;span class=&quot;s1&quot;&gt;'node-3:24632'&lt;/span&gt; with a physical snapshot from an existing cluster member. To use this method by default, &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;the &lt;span class=&quot;s1&quot;&gt;'recoveryMethod'&lt;/span&gt; option to &lt;span class=&quot;s1&quot;&gt;'clone'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+The incremental state recovery may be safely used &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;you are sure all updates ever executed &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;the cluster were &lt;span class=&quot;k&quot;&gt;done &lt;/span&gt;with GTIDs enabled, there are no purged transactions and the new instance contains the same GTID &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;as the cluster or a subset of it. To use this method by default, &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;the &lt;span class=&quot;s1&quot;&gt;'recoveryMethod'&lt;/span&gt; option to &lt;span class=&quot;s1&quot;&gt;'incremental'&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+
+Please &lt;span class=&quot;k&quot;&gt;select &lt;/span&gt;a recovery method &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;I]ncremental recovery/[A]bort &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default Incremental recovery&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: 
+Validating instance configuration at localhost:24632...
+
+This instance reports its own address as node-3:24632
+
+Instance configuration is suitable.
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-3:24632'&lt;/span&gt; cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+A new instance will be added to the InnoDB cluster. Depending on the amount of
+data on the cluster this might take from a few seconds to several hours.
+
+Adding instance to the cluster...
+
+Monitoring recovery process of the new cluster member. Press ^C to stop monitoring and &lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;it &lt;span class=&quot;k&quot;&gt;continue in &lt;/span&gt;background.
+State recovery already finished &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'node-3:24632'&lt;/span&gt;
+
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-1:24630'&lt;/span&gt; cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+WARNING: Instance &lt;span class=&quot;s1&quot;&gt;'node-2:24631'&lt;/span&gt; cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;MySQL version &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; 8.0.11 required&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;locally to persist the changes.
+The instance &lt;span class=&quot;s1&quot;&gt;'localhost:24632'&lt;/span&gt; was successfully added to the cluster.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;查看cluster-状态&quot;&gt;查看cluster 状态&lt;/h4&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  localhost:24630 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; cluster.status&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;clusterName&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;testCluster&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;defaultReplicaSet&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;default&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;primary&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;ssl&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;REQUIRED&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;OK&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;statusText&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Cluster is ONLINE and can tolerate up to ONE failure.&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topology&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/W&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/O&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/O&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topologyMode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Single-Primary&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;groupInformationSourceMember&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;安装mysql-router&quot;&gt;安装MySQL router&lt;/h4&gt;
+
+&lt;p&gt;待补充&lt;/p&gt;
+
+&lt;h3 id=&quot;模拟单节点重启&quot;&gt;模拟单节点重启&lt;/h3&gt;
+
+&lt;p&gt;关闭节点&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./node2/stop
+dbdeployer global status
+&lt;span class=&quot;c&quot;&gt;# Running &quot;status_all&quot; on multi_msb_5_7_29&lt;/span&gt;
+MULTIPLE  /Users/qianyin/sandboxes/multi_msb_5_7_29
+node1 : node1 on  -  port       24630 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24630&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node2 : node2 off  -  port      24630 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24631&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node3 : node3 on  -  port       24632 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24632&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;集群状态&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  localhost:6447 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dba.getCluster&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;.status&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;clusterName&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;testCluster&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;defaultReplicaSet&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;default&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;primary&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;ssl&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;REQUIRED&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;OK_NO_TOLERANCE&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;statusText&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Cluster is NOT tolerant to any failures. 1 member is not active&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topology&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/W&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;n/a&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;shellConnectError&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;MySQL Error 2003 (HY000): Can't connect to MySQL server on 'node-2' (61)&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;(MISSING)&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/O&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topologyMode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Single-Primary&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;groupInformationSourceMember&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;启动节点&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; ./node2/start
+.. sandbox server started
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dbdeployer global status
+&lt;span class=&quot;c&quot;&gt;# Running &quot;status_all&quot; on multi_msb_5_7_29&lt;/span&gt;
+MULTIPLE  /Users/qianyin/sandboxes/multi_msb_5_7_29
+node1 : node1 on  -  port       24630 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24630&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node2 : node2 on  -  port       24631 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24631&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+node3 : node3 on  -  port       24632 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;24632&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;查看集群状态&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; MySQL  localhost:6447 ssl  JS &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dba.getCluster&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;.status&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;clusterName&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;testCluster&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;defaultReplicaSet&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;default&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;primary&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;ssl&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;REQUIRED&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;OK_NO_TOLERANCE&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;statusText&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Cluster is NOT tolerant to any failures. 1 member is not active&quot;&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topology&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/W&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-2:24631&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/W&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;(MISSING)&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+            &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;address&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-3:24632&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;mode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;R/O&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;readReplicas&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;role&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;HA&quot;&lt;/span&gt;, 
+                &lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;ONLINE&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+        &lt;span class=&quot;s2&quot;&gt;&quot;topologyMode&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Single-Primary&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;groupInformationSourceMember&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;node-1:24630&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;修复&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cluster.removeInstance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24631'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;force: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;#这一步可能会失败，多尝试几次&lt;/span&gt;
+cluster.addInstance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'root@localhost:24631'&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localAddress'&lt;/span&gt;:&lt;span class=&quot;s1&quot;&gt;'localhost:25631'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;常用运维命令&quot;&gt;常用运维命令&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;组复制状态
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;select * from performance_schema.global_status where variable_name like '%group%';&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;组复制成员
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;select * from performance_schema.replication_group_members;&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;所有节点重启脑裂场景参考如下&quot;&gt;所有节点重启，脑裂场景参考如下&lt;/h3&gt;
+
+&lt;p&gt;https://jeremyxu2010.github.io/2019/05/mysql-innodb-cluster%E5%AE%9E%E6%88%98/&lt;/p&gt;</content><author><name>Nick</name></author><summary type="html">用dbdeployer 部署3个单节点 dbdeployer deploy multiple 5.7 -n 3 查看节点状态 dbdeployer sandboxes --full-info .------------------.----------.---------.-----------.----------------------.--------.-------.--------. | name | type | version | host | port | flavor | nodes | locked | +------------------+----------+---------+-----------+----------------------+--------+-------+--------+ | multi_msb_5_7_29 | multiple | 5.7.29 | 127.0.0.1 | [24630 24631 24632 ] | mysql | 3 | | '------------------'----------'---------'-----------'----------------------'--------'-------'--------' dbdeployer global status # Running &quot;status_all&quot; on multi_msb_5_7_29 MULTIPLE /Users/qianyin/sandboxes/multi_msb_5_7_29 node1 : node1 on - port 24630 (24630) node2 : node2 on - port 24631 (24631) node3 : node3 on - port 24632 (24632) 下载MySQL-Shell wget https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell-8.0.19-macos10.15-x86-64bit.tar.gz 解压后进入mysql shell 目录 bin目录下就3个文件 -rwxr-xr-x@ 1 qianyin staff 633256 12 17 09:42 mysql-secret-store-keychain* -rwxr-xr-x@ 1 qianyin staff 7957420 12 17 09:42 mysql-secret-store-login-path* -rwxr-xr-x@ 1 qianyin staff 31067132 12 17 09:42 mysqlsh* 我们运行mysqlsh 可以先打\help 看下帮助提示 可以看到支持的模块如下： - dba Used for InnoDB cluster administration. - mysql Support for connecting to MySQL servers using the classic MySQL protocol. - mysqlx Used to work with X Protocol sessions using the MySQL X DevAPI. - os Gives access to functions which allow to interact with the operating system. - shell Gives access to general purpose functions and properties. - sys Gives access to system specific parameters. - util Global object that groups miscellaneous tools like upgrade checker and JSON import. 部署集群我们需要用到dba功能，再查看dba的帮助信息 \? dba 正式配置集群 检查并配置3个数据库实例 mysql-js&amp;gt; \connect root@localhost:24630 MySQL localhost:24630 ssl JS &amp;gt; dba.configureLocalInstance() Configuring local MySQL instance listening at port 24630 for use in an InnoDB cluster... This instance reports its own address as node-1:24630 ERROR: User 'root' can only connect from 'localhost'. New account(s) with proper source address specification to allow remote connection from all instances must be created to manage the cluster. 1) Create remotely usable account for 'root' with same grants and password 2) Create a new admin account for InnoDB cluster with minimal required grants 3) Ignore and continue 4) Cancel Please select an option [1]: Please provide a source address filter for the account (e.g: 192.168.% or % etc) or leave empty and press Enter to cancel. Account Host: % NOTE: Some configuration options need to be fixed: +----------------------------------+---------------+----------------+------------------------------------------------+ | Variable | Current Value | Required Value | Note | +----------------------------------+---------------+----------------+------------------------------------------------+ | binlog_checksum | CRC32 | NONE | Update the server variable and the config file | | enforce_gtid_consistency | OFF | ON | Update the config file and restart the server | | gtid_mode | OFF | ON | Update the config file and restart the server | | log_slave_updates | OFF | ON | Update the config file and restart the server | | master_info_repository | FILE | TABLE | Update the config file and restart the server | | relay_log_info_repository | FILE | TABLE | Update the config file and restart the server | | transaction_write_set_extraction | OFF | XXHASH64 | Update the config file and restart the server | +----------------------------------+---------------+----------------+------------------------------------------------+ Some variables need to be changed, but cannot be done dynamically on the server: an option file is required. Detecting the configuration file... Default file not found at the standard locations. Please specify the path to the MySQL configuration file: /Users/qianyin/sandboxes/multi_msb_5_7_29/node1/my.sandbox.cnf Do you want to perform the required configuration changes? [y/n]: y Cluster admin user 'root'@'%' created. Configuring instance... The instance 'node-1:24630' was configured to be used in an InnoDB cluster. NOTE: MySQL server needs to be restarted for configuration changes to take effect. 依次修改另外2个节点 查看my.cnf 会发现在文件末尾添加了如下配置： binlog_checksum = NONE enforce_gtid_consistency = ON gtid_mode = ON log_slave_updates = ON master_info_repository = TABLE relay_log_info_repository = TABLE transaction_write_set_extraction = XXHASH64 配置完后，检查下 MySQL localhost:24630 ssl JS &amp;gt; dba.checkInstanceConfiguration('root@localhost:24631') Validating local MySQL instance listening at port 24631 for use in an InnoDB cluster... This instance reports its own address as node-2:24631 Checking whether existing tables comply with Group Replication requirements... No incompatible tables detected Checking instance configuration... Instance configuration is compatible with InnoDB cluster The instance 'node-2:24631' is valid to be used in an InnoDB cluster. { &quot;status&quot;: &quot;ok&quot; } 3个节点都显示”status”: “ok” 即可。 创建集群 MySQL localhost:24630 ssl JS &amp;gt; var cluster = dba.createCluster('testCluster',{'localAddress':'localhost:25630'}) A new InnoDB cluster will be created on instance 'localhost:24630'. Disabling super_read_only mode on instance 'node-1:24630'. Validating instance configuration at localhost:24630... This instance reports its own address as node-1:24630 Instance configuration is suitable. WARNING: Instance 'node-1:24630' cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. Creating InnoDB cluster 'testCluster' on 'node-1:24630'... Adding Seed Instance... Cluster successfully created. Use Cluster.addInstance() to add MySQL instances. At least 3 instances are needed for the cluster to be able to withstand up to one server failure. Adding Instances to an InnoDB Cluster **注意：先配置/etc/hosts ** 127.0.0.1 node-1 127.0.0.1 node-2 127.0.0.1 node-3 否则报错： MySQL 127.0.0.1:24630 ssl JS &amp;gt; cluster.addInstance('root@localhost:24631',{'localAddress':'localhost:25631'}) Cluster.addInstance: Unknown MySQL server host 'node-1' (0) (MySQL Error 2005) 添加集群节点 MySQL localhost:24630 ssl JS &amp;gt; cluster.addInstance('root@localhost:24631',{'localAddress':'localhost:25631'}) NOTE: The target instance 'node-2:24631' has not been pre-provisioned (GTID set is empty). The Shell is unable to decide whether incremental state recovery can correctly provision it. The safest and most convenient way to provision a new instance is through automatic clone provisioning, which will completely overwrite the state of 'node-2:24631' with a physical snapshot from an existing cluster member. To use this method by default, set the 'recoveryMethod' option to 'clone'. The incremental state recovery may be safely used if you are sure all updates ever executed in the cluster were done with GTIDs enabled, there are no purged transactions and the new instance contains the same GTID set as the cluster or a subset of it. To use this method by default, set the 'recoveryMethod' option to 'incremental'. Please select a recovery method [I]ncremental recovery/[A]bort (default Incremental recovery): Validating instance configuration at localhost:24631... This instance reports its own address as node-2:24631 Instance configuration is suitable. WARNING: Instance 'node-2:24631' cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. A new instance will be added to the InnoDB cluster. Depending on the amount of data on the cluster this might take from a few seconds to several hours. Adding instance to the cluster... Monitoring recovery process of the new cluster member. Press ^C to stop monitoring and let it continue in background. State recovery already finished for 'node-2:24631' WARNING: Instance 'node-1:24630' cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. The instance 'localhost:24631' was successfully added to the cluster. MySQL localhost:24630 ssl JS &amp;gt; cluster.addInstance('root@localhost:24632',{'localAddress':'localhost:25632'}) NOTE: The target instance 'node-3:24632' has not been pre-provisioned (GTID set is empty). The Shell is unable to decide whether incremental state recovery can correctly provision it. The safest and most convenient way to provision a new instance is through automatic clone provisioning, which will completely overwrite the state of 'node-3:24632' with a physical snapshot from an existing cluster member. To use this method by default, set the 'recoveryMethod' option to 'clone'. The incremental state recovery may be safely used if you are sure all updates ever executed in the cluster were done with GTIDs enabled, there are no purged transactions and the new instance contains the same GTID set as the cluster or a subset of it. To use this method by default, set the 'recoveryMethod' option to 'incremental'. Please select a recovery method [I]ncremental recovery/[A]bort (default Incremental recovery): Validating instance configuration at localhost:24632... This instance reports its own address as node-3:24632 Instance configuration is suitable. WARNING: Instance 'node-3:24632' cannot persist Group Replication configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. A new instance will be added to the InnoDB cluster. Depending on the amount of data on the cluster this might take from a few seconds to several hours. Adding instance to the cluster... Monitoring recovery process of the new cluster member. Press ^C to stop monitoring and let it continue in background. State recovery already finished for 'node-3:24632' WARNING: Instance 'node-1:24630' cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. WARNING: Instance 'node-2:24631' cannot persist configuration since MySQL version 5.7.29 does not support the SET PERSIST command (MySQL version &amp;gt;= 8.0.11 required). Please use the &amp;lt;Dba&amp;gt;.configureLocalInstance() command locally to persist the changes. The instance 'localhost:24632' was successfully added to the cluster. 查看cluster 状态 MySQL localhost:24630 ssl JS &amp;gt; cluster.status() { &quot;clusterName&quot;: &quot;testCluster&quot;, &quot;defaultReplicaSet&quot;: { &quot;name&quot;: &quot;default&quot;, &quot;primary&quot;: &quot;node-1:24630&quot;, &quot;ssl&quot;: &quot;REQUIRED&quot;, &quot;status&quot;: &quot;OK&quot;, &quot;statusText&quot;: &quot;Cluster is ONLINE and can tolerate up to ONE failure.&quot;, &quot;topology&quot;: { &quot;node-1:24630&quot;: { &quot;address&quot;: &quot;node-1:24630&quot;, &quot;mode&quot;: &quot;R/W&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; }, &quot;node-2:24631&quot;: { &quot;address&quot;: &quot;node-2:24631&quot;, &quot;mode&quot;: &quot;R/O&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; }, &quot;node-3:24632&quot;: { &quot;address&quot;: &quot;node-3:24632&quot;, &quot;mode&quot;: &quot;R/O&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; } }, &quot;topologyMode&quot;: &quot;Single-Primary&quot; }, &quot;groupInformationSourceMember&quot;: &quot;node-1:24630&quot; 安装MySQL router 待补充 模拟单节点重启 关闭节点 ./node2/stop dbdeployer global status # Running &quot;status_all&quot; on multi_msb_5_7_29 MULTIPLE /Users/qianyin/sandboxes/multi_msb_5_7_29 node1 : node1 on - port 24630 (24630) node2 : node2 off - port 24630 (24631) node3 : node3 on - port 24632 (24632) 集群状态 MySQL localhost:6447 ssl JS &amp;gt; dba.getCluster().status() { &quot;clusterName&quot;: &quot;testCluster&quot;, &quot;defaultReplicaSet&quot;: { &quot;name&quot;: &quot;default&quot;, &quot;primary&quot;: &quot;node-1:24630&quot;, &quot;ssl&quot;: &quot;REQUIRED&quot;, &quot;status&quot;: &quot;OK_NO_TOLERANCE&quot;, &quot;statusText&quot;: &quot;Cluster is NOT tolerant to any failures. 1 member is not active&quot;, &quot;topology&quot;: { &quot;node-1:24630&quot;: { &quot;address&quot;: &quot;node-1:24630&quot;, &quot;mode&quot;: &quot;R/W&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; }, &quot;node-2:24631&quot;: { &quot;address&quot;: &quot;node-2:24631&quot;, &quot;mode&quot;: &quot;n/a&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;shellConnectError&quot;: &quot;MySQL Error 2003 (HY000): Can't connect to MySQL server on 'node-2' (61)&quot;, &quot;status&quot;: &quot;(MISSING)&quot; }, &quot;node-3:24632&quot;: { &quot;address&quot;: &quot;node-3:24632&quot;, &quot;mode&quot;: &quot;R/O&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; } }, &quot;topologyMode&quot;: &quot;Single-Primary&quot; }, &quot;groupInformationSourceMember&quot;: &quot;node-1:24630&quot; } 启动节点 &amp;gt; ./node2/start .. sandbox server started &amp;gt; dbdeployer global status # Running &quot;status_all&quot; on multi_msb_5_7_29 MULTIPLE /Users/qianyin/sandboxes/multi_msb_5_7_29 node1 : node1 on - port 24630 (24630) node2 : node2 on - port 24631 (24631) node3 : node3 on - port 24632 (24632) 查看集群状态 MySQL localhost:6447 ssl JS &amp;gt; dba.getCluster().status() { &quot;clusterName&quot;: &quot;testCluster&quot;, &quot;defaultReplicaSet&quot;: { &quot;name&quot;: &quot;default&quot;, &quot;primary&quot;: &quot;node-1:24630&quot;, &quot;ssl&quot;: &quot;REQUIRED&quot;, &quot;status&quot;: &quot;OK_NO_TOLERANCE&quot;, &quot;statusText&quot;: &quot;Cluster is NOT tolerant to any failures. 1 member is not active&quot;, &quot;topology&quot;: { &quot;node-1:24630&quot;: { &quot;address&quot;: &quot;node-1:24630&quot;, &quot;mode&quot;: &quot;R/W&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; }, &quot;node-2:24631&quot;: { &quot;address&quot;: &quot;node-2:24631&quot;, &quot;mode&quot;: &quot;R/W&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;(MISSING)&quot; }, &quot;node-3:24632&quot;: { &quot;address&quot;: &quot;node-3:24632&quot;, &quot;mode&quot;: &quot;R/O&quot;, &quot;readReplicas&quot;: {}, &quot;role&quot;: &quot;HA&quot;, &quot;status&quot;: &quot;ONLINE&quot; } }, &quot;topologyMode&quot;: &quot;Single-Primary&quot; }, &quot;groupInformationSourceMember&quot;: &quot;node-1:24630&quot; 修复 cluster.removeInstance('root@localhost:24631',{force: true}) #这一步可能会失败，多尝试几次 cluster.addInstance('root@localhost:24631',{'localAddress':'localhost:25631'}) 常用运维命令 组复制状态 select * from performance_schema.global_status where variable_name like '%group%'; 组复制成员 select * from performance_schema.replication_group_members; 所有节点重启，脑裂场景参考如下 https://jeremyxu2010.github.io/2019/05/mysql-innodb-cluster%E5%AE%9E%E6%88%98/</summary></entry><entry><title type="html">mongodb复制集环境搭建</title><link href="http://localhost:4000/mongodb/2020/04/20/mongo_replset_building/" rel="alternate" type="text/html" title="mongodb复制集环境搭建" /><published>2020-04-20T00:00:00+08:00</published><updated>2020-04-20T00:00:00+08:00</updated><id>http://localhost:4000/mongodb/2020/04/20/mongo_replset_building</id><content type="html" xml:base="http://localhost:4000/mongodb/2020/04/20/mongo_replset_building/">&lt;blockquote&gt;
   &lt;p&gt;目标：在mac上部署3个节点的复制集，为后续测试准备环境&lt;/p&gt;
 &lt;/blockquote&gt;
 
