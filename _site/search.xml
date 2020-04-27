@@ -21,40 +21,6 @@
     </entry>
   
     <entry>
-      <title><![CDATA[mongodb writeConcern初探]]></title>
-      <url>/mongodb/2020/04/20/mongodb-writeConcern/</url>
-      <content type="text"><![CDATA[什么是writeConcernwriteConcern 决定一个写操作落到多少个节点上才算成功。取值包括：  0 ：发起写操作，不关心是否成功。  1~集群最大节点数 ：写操作需要复制到指定节点数才算成功  majority：写操作需要复制到多数节点才算成功发起写操作的程序将阻塞直到满足上诉条件。  writeConcern类似MySQL的半同步复制--rpl-semi-sync-master-wait-for-slave-count这里还要提到另一个概念：Journal 日志，跟MySQL的redo log类似，也是为了做crash safe。为了保证每次写数据都落盘，可以指定j: true注：3.2之前只要primary节点落盘就确认ok，3.2之后需要w:N都确认才okwriteConcern功能验证w: “majority”rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: "majority"}})WriteResult({ "nInserted" : 1 })这是推荐的写法，mongodb会自己判断只要写入多数节点即返回成功w: 节点数rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3 }})WriteResult({ "nInserted" : 1 })可以看到正常情况下（secondary节点没延迟）也很快返回成功了。w＞节点数rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 4}})WriteResult({        "nInserted" : 1,        "writeConcernError" : {                "code" : 100,                "codeName" : "UnsatisfiableWriteConcern",                "errmsg" : "Not enough data-bearing nodes"        }})这里虽然报错了，但实际还是写入成功了。secondary节点有延迟的情况下，观察现象首先我们模拟延迟场景，在primary节点执行，模拟secondary 2节点延迟10秒conf=rs.conf() conf.members[2].slaveDelay = 10conf.members[2].priority = 0 rs.reconfig(conf)观察复制延迟下的写入，以及timeout参数db.test.insert( {count: 1}, {writeConcern: {w: 3}})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3}})# 这里会等待10sWriteResult({ "nInserted" : 1 })rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }db.test.insert( {count: 1}, {writeConcern: {w: 3, wtimeout:3000 }})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3, wtimeout:3000 }})# 这里等3s后报错，实际命令敲下的一瞬间已写入到primary和没延迟的secondary，延迟节点需要等10s后落盘。WriteResult({        "nInserted" : 1,        "writeConcernError" : {                "code" : 64,                "codeName" : "WriteConcernFailed",                "errmsg" : "waiting for replication timed out",                "errInfo" : {                        "wtimeout" : true                }        }})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }{ "_id" : ObjectId("5e9d800ed4eb493af10599cd"), "count" : 1 }总结  虽然多于半数的writeConcern都是安全的，但通常只会设置majority，因为这是等待写入延迟时间最短的选择;  不要设置writeConcern等于总节点数，因为一旦有一个节点故障，所有写操作都将失败;  writeConcern虽然会增加写操作延迟时间，但并不会显著增加集群压力，因此无论是否等待，写操作最终都会复制到所有节点上。设置 writeConcern 只是让写操作等待复制后再返回而已;  应对重要数据应用{w:“majority”}，普通数据可以应用{w:1}以确保最佳性能。]]></content>
-      <categories>
-        
-          <category> mongodb </category>
-        
-      </categories>
-      <tags>
-        
-          <tag> mongodb </tag>
-        
-      </tags>
-      <tags></tags>
-    </entry>
-  
-    <entry>
-      <title><![CDATA[mongodb复制集环境搭建]]></title>
-      <url>/mongodb/2020/04/20/mongo_replset_building/</url>
-      <content type="text"><![CDATA[  目标：在mac上部署3个节点的复制集，为后续测试准备环境创建目录：mkdir -p /data/mongodb/db{1,2,3}编辑配置文件：cat /data/mongodb/db1/mongod.conf systemLog:    destination: file    path: /data/mongodb/db1/mongod.log    logAppend: truestorage:    dbPath: /data/mongodb/db1net:    bindIp: 0.0.0.0    port: 28017replication:    replSetName: rs0processManagement:    fork: true  其他节点只需修改path和port即可启动mongod：mongod -f /data/db1/mongod.conf配置复制集：mongo --port 28017  方法一&gt; rs.initiate()&gt; rs.add("HOSTNAME:28018") &gt; rs.add("HOSTNAME:28019")  方法二mongo --port 28017&gt; rs.initiate({    _id: "rs0",    members: [    {_id: 0,host: "localhost:28017" },    {_id: 1,host: "localhost:28018" },    {_id: 2,host: "localhost:28019" }    ]})验证  MongoDB 主节点进行写入mongo localhost:28017&gt; db.test.insert({ a:1 })&gt; db.test.insert({ a:2 });  MongoDB 从节点进行读mongo localhost:28018&gt; rs.slaveOk()&gt; db.test.find()]]></content>
-      <categories>
-        
-          <category> mongodb </category>
-        
-      </categories>
-      <tags>
-        
-          <tag> mongodb </tag>
-        
-      </tags>
-      <tags></tags>
-    </entry>
-  
-    <entry>
       <title><![CDATA[MySQL运维SQL&工具 手册]]></title>
       <url>/%E8%BF%90%E7%BB%B4/mysql/2020/04/18/mysql%E8%BF%90%E7%BB%B4SQL&%E5%B7%A5%E5%85%B7%E9%9B%86%E9%94%A6/</url>
       <content type="text"><![CDATA[连接      如何不需要密码的登录，直接mysql    [mysql]  --表示： 只有mysql命令才能免密码user=rootpassword=123socket=/tmp/mysql.sock   [mysqladmin] --表示： 只有mysqladmin命令才能免密码user=rootpassword=123socket=/tmp/mysql.sock[mysqldump] --表示： 只有mysqldump命令才能免密码user=rootpassword=123socket=/tmp/mysql.sock[client]   --表示：只要是客户端的命令，都是可以免密码的user=rootpassword=123socket=/tmp/mysql.sock      MySQL如何查看用户名密码      MySQL5.7.6之前    1. show grants for $user;2. select host,user,Password from user;            MySQL5.7.6+    select host,user,authentication_string,password_lifetime,password_expired,password_last_changed from mysql.user where user='xxx';      information_schema相关如何在线kill掉满足某种条件的session待补充PROCESSLIST      分析出当前连接过来的客户端ip的分布情况    select substring_index(host,':', 1) as appip ,count(*) as count from information_schema.PROCESSLIST group by appip order by count desc;            分析处于Sleep状态的连接分布情况    select substring_index(host,':', 1) as appip ,count(*) as count from information_schema.PROCESSLIST where COMMAND='Sleep' group by appip order by count desc ;            分析哪些DB访问的比较多    select DB ,count(*) as count from information_schema.PROCESSLIST where COMMAND='Sleep' group by DB order by count desc ;            分析哪些用户访问的比较多    select user ,count(*) as count from information_schema.PROCESSLIST where COMMAND='Sleep' group by user order by count desc ;      Tables      列出大于10G以上的表    select TABLE_SCHEMA,TABLE_NAME,TABLE_ROWS,ROUND((INDEX_LENGTH+DATA_FREE+DATA_LENGTH)/1024/1024/1024) as size_G from information_schema.tables where ROUND((INDEX_LENGTH+DATA_FREE+DATA_LENGTH)/1024/1024/1024) &gt; 10 order by size_G desc ;      performance_schema相关performance_schema 状态概览SHOW VARIABLES LIKE 'perf%';SHOW STATUS LIKE 'perf%';SHOW ENGINE PERFORMANCE_SCHEMA STATUS;如何查看每个threads当前session变量的值select * from performance_schema.variables_by_thread as a,(select THREAD_ID,PROCESSLIST_ID,PROCESSLIST_USER,PROCESSLIST_HOST,PROCESSLIST_COMMAND,PROCESSLIST_STATE from performance_schema.threads where PROCESSLIST_USER&lt;&gt;'NULL') as b where a.THREAD_ID = b.THREAD_ID and a.VARIABLE_NAME = 'sql_safe_updates'TOP SQL 相关  能够解决什么问题： 可以找到某个表是否还有业务访问？能够解决什么问题： 可以确定某个库，某个表的业务是否迁移干净？能够解决什么问题： 可以用于分析业务是否异常？能够解决什么问题： 根据TopN 可以分析压力？能够解决什么问题： 可以用于分析哪些表是热点数据，这些TopN的表才是值得优化的表。只要每一条语句快0.01ms，那么1亿条呢？      一个实例中查询最多的TopN SQL    select SCHEMA_NAME,DIGEST_TEXT,COUNT_STAR,FIRST_SEEN,LAST_SEEN  from performance_schema.events_statements_summary_by_digest where DIGEST_TEXT like 'select%' and DIGEST_TEXT not like '%SESSION%' order by COUNT_STAR desc limit 10\G            一个实例中写入最多的TopN SQL    select SCHEMA_NAME,DIGEST_TEXT,COUNT_STAR,FIRST_SEEN,LAST_SEEN  from performance_schema.events_statements_summary_by_digest where DIGEST_TEXT like 'insert%' or DIGEST_TEXT like 'update%'or DIGEST_TEXT like 'delete%' or DIGEST_TEXT like 'replace%'  order by COUNT_STAR desc limit 10\G      Table IO 相关的监控库级别      如何查看一个MySQL实例中哪个库的all latency时间最大              ]]></content>
@@ -85,6 +51,57 @@
       <tags>
         
           <tag> pt-tools </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[mongodb writeConcern初探]]></title>
+      <url>/mongodb/2018/04/20/mongodb-writeConcern/</url>
+      <content type="text"><![CDATA[什么是writeConcernwriteConcern 决定一个写操作落到多少个节点上才算成功。取值包括：  0 ：发起写操作，不关心是否成功。  1~集群最大节点数 ：写操作需要复制到指定节点数才算成功  majority：写操作需要复制到多数节点才算成功发起写操作的程序将阻塞直到满足上诉条件。  writeConcern类似MySQL的半同步复制--rpl-semi-sync-master-wait-for-slave-count这里还要提到另一个概念：Journal 日志，跟MySQL的redo log类似，也是为了做crash safe。为了保证每次写数据都落盘，可以指定j: true注：3.2之前只要primary节点落盘就确认ok，3.2之后需要w:N都确认才okwriteConcern功能验证w: “majority”rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: "majority"}})WriteResult({ "nInserted" : 1 })这是推荐的写法，mongodb会自己判断只要写入多数节点即返回成功w: 节点数rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3 }})WriteResult({ "nInserted" : 1 })可以看到正常情况下（secondary节点没延迟）也很快返回成功了。w＞节点数rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 4}})WriteResult({        "nInserted" : 1,        "writeConcernError" : {                "code" : 100,                "codeName" : "UnsatisfiableWriteConcern",                "errmsg" : "Not enough data-bearing nodes"        }})这里虽然报错了，但实际还是写入成功了。secondary节点有延迟的情况下，观察现象首先我们模拟延迟场景，在primary节点执行，模拟secondary 2节点延迟10秒conf=rs.conf() conf.members[2].slaveDelay = 10conf.members[2].priority = 0 rs.reconfig(conf)观察复制延迟下的写入，以及timeout参数db.test.insert( {count: 1}, {writeConcern: {w: 3}})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3}})# 这里会等待10sWriteResult({ "nInserted" : 1 })rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }db.test.insert( {count: 1}, {writeConcern: {w: 3, wtimeout:3000 }})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }rs0:PRIMARY&gt; db.test.insert( {count: 1}, {writeConcern: {w: 3, wtimeout:3000 }})# 这里等3s后报错，实际命令敲下的一瞬间已写入到primary和没延迟的secondary，延迟节点需要等10s后落盘。WriteResult({        "nInserted" : 1,        "writeConcernError" : {                "code" : 64,                "codeName" : "WriteConcernFailed",                "errmsg" : "waiting for replication timed out",                "errInfo" : {                        "wtimeout" : true                }        }})rs0:PRIMARY&gt; db.test.find(){ "_id" : ObjectId("5e9d7bf6d4eb493af10599c9"), "count" : 1 }{ "_id" : ObjectId("5e9d7cf4d4eb493af10599ca"), "count" : 1 }{ "_id" : ObjectId("5e9d7e2ad4eb493af10599cb"), "count" : 1 }{ "_id" : ObjectId("5e9d7f9ad4eb493af10599cc"), "count" : 1 }{ "_id" : ObjectId("5e9d800ed4eb493af10599cd"), "count" : 1 }总结  虽然多于半数的writeConcern都是安全的，但通常只会设置majority，因为这是等待写入延迟时间最短的选择;  不要设置writeConcern等于总节点数，因为一旦有一个节点故障，所有写操作都将失败;  writeConcern虽然会增加写操作延迟时间，但并不会显著增加集群压力，因此无论是否等待，写操作最终都会复制到所有节点上。设置 writeConcern 只是让写操作等待复制后再返回而已;  应对重要数据应用{w:“majority”}，普通数据可以应用{w:1}以确保最佳性能。]]></content>
+      <categories>
+        
+          <category> mongodb </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> mongodb </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[mongodb readPreference 和 readConcern初探]]></title>
+      <url>/mongodb/2018/04/20/mongodb-readPreference&readConcern/</url>
+      <content type="text"><![CDATA[综述在读取数据的过程中我们需要关注以下两个问题:  从哪里读?  什么样的数据可以读?第一个问题是是由 readPreference 来解决 第二个问题则是由 readConcern 来解决什么是 readPreferencereadPreference 决定使用哪一个节点来满足 正在发起的读请求。可选值包括:  primary:只选择主节点;  primaryPreferred:优先选择主节点，如果不可用则选择从节点;  secondary:只选择从节点;  secondaryPreferred:优先选择从节点， 如果从节点不可用则选择主节点;  nearest:选择最近的节点;readPreference 场景举例  primary/primaryPreferred 用户下订单后马上将用户转到订单详情页,因为此时从节点可能还没复制到新订单;  secondary/secondaryPreferred 用户查询自己下过的订单。查询历史订单对 时效性通常没有太高要求;  secondary 生成报表。报表对时效性要求不高，但资源需求大，可以在从节点 单独处理，避免对线上用户造成影响;  nearest将用户上传的图片分发到全世界，让各地用户能够就近读取。每个地区 的应用选择最近的节点读取数据。readPreference 与 TagreadPreference 只能控制使用一类节点。Tag 则可以将节点选择控制 到一个或几个节点。考虑以下场景:  一个5个节点的复制集;  3个节点硬件较好，专用于服务线上客户;  2个节点硬件较差，专用于生成报表可以使用 Tag 来达到这样的控制目的:  为3个较好的节点打上{purpose:”online”};  为2个较差的节点打上{purpose:”analyse”};  在线应用读取时指定online，报表读取时指定analyse。readPreference 配置通过 MongoDB 的连接串参数:  mongodb://host1:27107,host2:27107,host3:27017/?replicaSet=rs&amp;readPre ference=secondary通过 MongoDB 驱动程序 API:  MongoCollection.withReadPreference(ReadPreferencereadPref)Mongo Shell:  db.collection.find({}).readPref(“secondary”)readPreference注意事项  指定readPreference时也应注意高可用问题。例如将readPreference指定primary，则发生故障转移不存在 primary 期间将没有节点可读。如果业务允许，则应选择 primaryPreferred;  使用Tag时也会遇到同样的问题，如果只有一个节点拥有一个特定Tag，则在这个节点失效时将无节点可读。这在有时候是期望的结果，有时候不是。例如:          如果报表使用的节点失效，即使不生成报表，通常也不希望将报表负载转移到其他节点上，此时只有一个节点有报表 Tag 是合理的选择;      如果线上节点失效，通常希望有替代节点，所以应该保持多个节点有同样的Tag;        Tag有时需要与优先级、选举权综合考虑。例如做报表的节点通常不会希望它成为主节点，则优先级应为 0。什么是 readConcern在 readPreference 选择了指定的节点后，readConcern 决定这个节点上的数据哪些 是可读的，类似于关系数据库的隔离级别。可选值包括:  available:读取所有可用的数据;  local:读取所有可用且属于当前分片的数据;  majority:读取在大多数节点上提交完成的数据;  linearizable:可线性化读取文档;  snapshot:读取最近快照中的数据;readConcern: local 和 available在复制集中 local 和 available 是没有区别的。两者的区别主要体现在分片集上。考虑以下场景:  一个chunkx正在从shard1向shard2迁移;  整个迁移过程中chunkx中的部分数据会在shard1和shard2中同时存在，但源分片shard1仍然是 chunk x 的负责方:          所有对chunkx的读写操作仍然进入shard1;      config中记录的信息chunkx仍然属于shard1;        此时如果读shard2，则会体现出local和available的区别:          local:只取应该由shard2负责的数据(不包括x);      available:shard2上有什么就读什么(包括x);      注意事项:  虽然看上去总是应该选择local，但毕竟对结果集进行过滤会造成额外消耗。在一些无关紧要的场景(例如统计)下，也可以考虑 available;  MongoDB&lt;=3.6不支持对从节点使用{readConcern:”local”};  从主节点读取数据时默认readConcern是local，从从节点读取数据时默认 readConcern 是 available(向前兼容原因)。readConcern: majority 与脏读如果在一次写操作到达大多数节点前读取了这个写操作，然后因为系统故障该操作回滚了，则发生了脏读问题;使用 {readConcern: “majority”} 可以有效避免脏读readConcern: 如何实现安全的读写分离考虑如下场景:  向主节点写入一条数据;  立即从从节点读取这条数据。  如何保证自己能够读到刚刚写入的数据?下述方式有可能读不到刚写入的订单db.orders.insert({ oid: 101, sku: ”kite", q: 1}) db.orders.find({oid:101}).readPref("secondary")使用 writeConcern + readConcern majority 来解决db.orders.insert({ oid: 101, sku: "kiteboar", q: 1}, {writeConcern:{w: "majority”}}) db.orders.find({oid:101}).readPref("secondary").readConcern("majority")]]></content>
+      <categories>
+        
+          <category> mongodb </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> mongodb </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[mongodb复制集环境搭建]]></title>
+      <url>/mongodb/2018/04/20/mongo_replset_building/</url>
+      <content type="text"><![CDATA[  目标：在mac上部署3个节点的复制集，为后续测试准备环境创建目录：mkdir -p /data/mongodb/db{1,2,3}编辑配置文件：cat /data/mongodb/db1/mongod.conf systemLog:    destination: file    path: /data/mongodb/db1/mongod.log    logAppend: truestorage:    dbPath: /data/mongodb/db1net:    bindIp: 0.0.0.0    port: 28017replication:    replSetName: rs0processManagement:    fork: true  其他节点只需修改path和port即可启动mongod：mongod -f /data/db1/mongod.conf配置复制集：mongo --port 28017  方法一&gt; rs.initiate()&gt; rs.add("HOSTNAME:28018") &gt; rs.add("HOSTNAME:28019")  方法二mongo --port 28017&gt; rs.initiate({    _id: "rs0",    members: [    {_id: 0,host: "localhost:28017" },    {_id: 1,host: "localhost:28018" },    {_id: 2,host: "localhost:28019" }    ]})验证  MongoDB 主节点进行写入mongo localhost:28017&gt; db.test.insert({ a:1 })&gt; db.test.insert({ a:2 });  MongoDB 从节点进行读mongo localhost:28018&gt; rs.slaveOk()&gt; db.test.find()]]></content>
+      <categories>
+        
+          <category> mongodb </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> mongodb </tag>
         
       </tags>
       <tags></tags>
