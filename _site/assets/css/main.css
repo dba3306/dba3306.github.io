@@ -558,7 +558,7 @@ pre .k, pre .kd, pre .kn, pre .kp, pre .kr, pre .kt, pre .javascript .function {
 .links-of-author { margin-top: 20px; }
 
 .links-of-author a { display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 10px; border-bottom-color: #555; font-size: 13px; }
-.links-of-author a:before { display: inline-block; vertical-align: middle; margin-right: 3px; content: " "; width: 4px; height: 4px; border-radius: 50%; background: #fffa00; }
+.links-of-author a:before { display: inline-block; vertical-align: middle; margin-right: 3px; content: " "; width: 4px; height: 4px; border-radius: 50%; background: #ff0078; }
 
 .links-of-blogroll { font-size: 13px; }
 
@@ -777,7 +777,7 @@ pre .k, pre .kd, pre .kn, pre .kp, pre .kr, pre .kt, pre .javascript .function {
 .page-post-detail .sidebar-toggle-line { background: #fc6423; }
 .page-post-detail .comments { overflow: hidden; }
 
-.header { position: relative; margin: 0 auto; width: 960px; }
+.header { position: relative; margin: 0 auto; width: 90%; }
 @media (min-width: 768px) and (max-width: 991px) { .header { width: auto; } }
 @media (max-width: 767px) { .header { width: auto; } }
 
@@ -791,11 +791,11 @@ pre .k, pre .kd, pre .kn, pre .kp, pre .kr, pre .kt, pre .javascript .function {
 @media (min-width: 768px) and (max-width: 991px) { .main { padding-bottom: 100px; } }
 @media (max-width: 767px) { .main { padding-bottom: 100px; } }
 
-.container .main-inner { width: 960px; }
+.container .main-inner { width: 90%; }
 @media (min-width: 768px) and (max-width: 991px) { .container .main-inner { width: auto; } }
 @media (max-width: 767px) { .container .main-inner { width: auto; } }
 
-.content-wrap { float: right; box-sizing: border-box; padding: 40px; width: 700px; background: white; min-height: 700px; box-shadow: initial; border-radius: initial; }
+.content-wrap { float: right; box-sizing: border-box; padding: 40px; width: calc(100% - 260px); background: white; min-height: 700px; box-shadow: initial; border-radius: initial; }
 @media (min-width: 768px) and (max-width: 991px) { .content-wrap { width: 100%; padding: 20px; border-radius: initial; } }
 @media (max-width: 767px) { .content-wrap { width: 100%; padding: 20px; min-height: auto; border-radius: initial; } }
 
