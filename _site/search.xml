@@ -57,6 +57,23 @@
     </entry>
   
     <entry>
+      <title><![CDATA[04 | 深入浅出索引]]></title>
+      <url>/mysql/2019/01/04/MySQL45-4/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
       <title><![CDATA[03 | 事务隔离：为什么你改了我还看不见？]]></title>
       <url>/mysql/2019/01/03/MySQL45-3/</url>
       <content type="text"><![CDATA[]]></content>
