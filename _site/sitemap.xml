@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://localhost:4000/mongodb/2018/02/21/mongodb%E4%BA%8B%E5%8A%A1/</loc>
+<lastmod>2018-02-21T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/mongodb/2018/04/20/mongo_replset_building/</loc>
 <lastmod>2018-04-20T00:00:00+08:00</lastmod>
 </url>
@@ -11,6 +15,10 @@
 <url>
 <loc>http://localhost:4000/mongodb/2018/04/20/mongodb-writeConcern/</loc>
 <lastmod>2018-04-20T00:00:00+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/mongodb/2018/05/01/mongodb_change_stream/</loc>
+<lastmod>2018-05-01T00:00:00+08:00</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/mysql/2020/04/18/innobackupex_encrypt/</loc>
