@@ -21,6 +21,18 @@
 <lastmod>2018-05-01T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/mysql/2019/01/01/MySQL45-1/</loc>
+<lastmod>2019-01-01T00:00:00+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/mysql/2019/01/02/MySQL45-2/</loc>
+<lastmod>2019-01-02T00:00:00+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/mysql/2019/01/03/MySQL45-3/</loc>
+<lastmod>2019-01-03T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/mysql/2020/04/18/innobackupex_encrypt/</loc>
 <lastmod>2020-04-18T00:00:00+08:00</lastmod>
 </url>
@@ -61,5 +73,8 @@
 </url>
 <url>
 <loc>http://localhost:4000/assets/lib/jquery_lazyload/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/page2/</loc>
 </url>
 </urlset>

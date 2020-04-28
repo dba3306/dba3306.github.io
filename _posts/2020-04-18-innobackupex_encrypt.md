@@ -2,7 +2,7 @@
 title: 用innobackupex实现加密备份
 description:  这是应一个朋友的需求帮他写的加密备份脚本
 categories:
- - mysql
+ - MySQL
 tags: pt-tools
 ---
 
