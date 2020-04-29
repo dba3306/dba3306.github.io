@@ -57,7 +57,109 @@
     </entry>
   
     <entry>
-      <title><![CDATA[04 | 深入浅出索引]]></title>
+      <title><![CDATA[10 | MySQL为什么有时候会选错索引？]]></title>
+      <url>/mysql/2019/01/16/MySQL45-9/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[11 | 怎么给字符串字段加索引？]]></title>
+      <url>/mysql/2019/01/16/MySQL45-10/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[09 | 普通索引和唯一索引，应该怎么选择？]]></title>
+      <url>/mysql/2019/01/13/MySQL45-8/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[08 | 事务到底是隔离的还是不隔离的？]]></title>
+      <url>/mysql/2019/01/10/MySQL45-7/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[07 | 行锁功过：怎么减少行锁对性能的影响？]]></title>
+      <url>/mysql/2019/01/08/MySQL45-6/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[06 | 全局锁和表锁 ：给表加个字段怎么有这么多阻碍？]]></title>
+      <url>/mysql/2019/01/07/MySQL45-5/</url>
+      <content type="text"><![CDATA[]]></content>
+      <categories>
+        
+          <category> MySQL </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> 丁奇MySQL45讲 </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[04-05 | 深入浅出索引]]></title>
       <url>/mysql/2019/01/04/MySQL45-4/</url>
       <content type="text"><![CDATA[]]></content>
       <categories>
